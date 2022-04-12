@@ -1,37 +1,50 @@
 package ru.gb.test.shop;
 
 import com.github.javafaker.Faker;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import ru.gb.dto.shop.UserDto;
 import ru.gb.extensions.MobileShopApiTest;
 
 import static io.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 @MobileShopApiTest
 public class RegisterUserTest {
-    private static Faker faker = new Faker();
+    private static final Faker faker = new Faker();
+    private UserDto userDto;
     String address = faker.address().fullAddress();
     String email = faker.internet().emailAddress();
     String password = faker.internet().password();
     String phone = faker.phoneNumber().phoneNumber();
     String username = faker.name().fullName();
 
+    @BeforeEach
+    void setUp() {
+        userDto = UserDto.builder()
+                .address(address)
+                .password(password)
+                .username(username)
+                .email(email)
+                .phone(phone)
+                .build();
+    }
+
     @Test
     void registerUserTest() {
-        given()
-                .body("{\n" +
-                        "  \"address\": \"" + address + "\",\n" +
-                        "  \"email\": \"" + email + "\",\n" +
-                        "  \"password\": \"" + password + "\",\n" +
-                        "  \"phone\": \"" + phone + "\",\n" +
-                        "  \"username\": \"" + username + "\"\n" +
-                        "}")
+        UserDto actualUserDto = given()
+                .body(userDto)
                 .post("/auth/register")
                 .then()
                 .statusCode(201)
-                .body("address", equalTo(address))
-                .body("email", equalTo(email))
-                .body("phone", equalTo(phone))
-                .body("username", equalTo(username));
+                .extract()
+                .as(UserDto.class);
+        assertThat(actualUserDto)
+                .usingRecursiveComparison()
+                .ignoringFields("password")
+                .ignoringExpectedNullFields()
+                .isEqualTo(userDto);
     }
 }
