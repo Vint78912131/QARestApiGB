@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.bson.types.ObjectId;
 
 import java.util.List;
 
@@ -26,7 +27,7 @@ public class UserDto {
     private List<OrderItem> orders;
 
     @JsonProperty("id")
-    private String id;
+    private ObjectId id;
 
     @JsonProperty("email")
     private String email;

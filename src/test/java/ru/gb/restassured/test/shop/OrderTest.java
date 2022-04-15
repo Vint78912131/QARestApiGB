@@ -1,5 +1,6 @@
 package ru.gb.restassured.test.shop;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.gb.restassured.dto.shop.OrderDto;
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static ru.gb.restassured.db.DbTestDataHelper.deleteUser;
 import static ru.gb.restassured.util.TestDataHelper.generateUserDto;
 
 @MobileShopApiTest
@@ -48,5 +50,10 @@ public class OrderTest {
 
         assertThat(new ApiUserEndpoint().getUser(userDto.getToken()).getOrders())
                 .containsExactlyElementsOf(orderDto.getOrder());
+    }
+
+    @AfterEach
+    void tearDown() {
+        deleteUser(userDto);
     }
 }
