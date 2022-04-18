@@ -25,7 +25,7 @@ public class RecipeTests {
     public int tr_Garlic = 1765;
     public int id_644218 = 644218;
     public String component_Plum = "Plum";
-    public String url = "https://spoonacular.com/";
+    public String url = "https://api.spoonacular.com/recipes/";
     OkHttpClient okHttpClient = new OkHttpClient()
             .newBuilder()
             .readTimeout(10, TimeUnit.SECONDS)
@@ -54,7 +54,7 @@ public class RecipeTests {
 //                  .queryParam("Accept-Encoding", "gzip, deflate, br")
 //                  .queryParam("apiKeyConnection", "keep-alive")
                   .when()
-                  .get("https://spoonacular.com/recipes/complexSearch?apiKey=a1eb2ff3a89c40289fe2c3d6af7cd53a")
+                  .get("https://api.spoonacular.com/recipes/complexSearch?apiKey=a1eb2ff3a89c40289fe2c3d6af7cd53a")
                 .asPrettyString();
 
 
