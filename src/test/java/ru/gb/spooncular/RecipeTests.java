@@ -2,6 +2,8 @@ package ru.gb.spooncular;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.util.JSONPObject;
+import io.qameta.allure.Description;
+import io.qameta.allure.Step;
 import io.restassured.path.json.JsonPath;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -15,8 +17,8 @@ import java.util.concurrent.TimeUnit;
 
 import static io.restassured.RestAssured.given;
 import static junit.framework.Assert.*;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 public class RecipeTests {
     public String apiKey = "a1eb2ff3a89c40289fe2c3d6af7cd53a";
@@ -26,64 +28,53 @@ public class RecipeTests {
     public int id_644218 = 644218;
     public String component_Plum = "Plum";
     public String url = "https://api.spoonacular.com/recipes/";
-    OkHttpClient okHttpClient = new OkHttpClient()
-            .newBuilder()
-            .readTimeout(10, TimeUnit.SECONDS)
-            .build();
-
 
 
     @Test
+    @Description("Checking offset, number, totalResults with assertThat")
     public void getRecipePositiveTest() throws IOException {
-//        Request request = new Request.Builder()
-//        .addHeader("apiKey", apiKey)
-//        .url("https://spoonacular.com/recipes/complexSearch")
-//        .get()
-//        .build();
-//
-//        Response response = okHttpClient.newCall(request).execute();
-//        System.out.println(response.body().string());
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        String results = objectMapper.readTree(body).asText();
-
-          String response = given()
-                  //.queryParam("apiKey", apiKey)
-//                  .queryParam("Host", "<calculated when request is sent>")
-//                  .queryParam("User-Agent", "PostmanRuntime/7.29.0")
-//                  .queryParam("Accept", "*/*")
-//                  .queryParam("Accept-Encoding", "gzip, deflate, br")
-//                  .queryParam("apiKeyConnection", "keep-alive")
-                  .when()
-                  .get("https://api.spoonacular.com/recipes/complexSearch?apiKey=a1eb2ff3a89c40289fe2c3d6af7cd53a")
-                .asPrettyString();
-
-
-        System.out.println(response);
+        JsonPath response = given()
+                .queryParam("apiKey", apiKey)
+                .when()
+                .get(url+"complexSearch")
+                .body()
+                .jsonPath();
+        System.out.println(response.prettyPrint());
+        assertThat(response.get("offset"), equalTo(0));
+        assertThat(response.get("number"), equalTo(10));
+        assertThat(response.get("totalResults"), equalTo(5222));
     }
 
     @Test
-    public void postCuisinePositiveAssertTest() {
-        String response = given()
+    @Description("Checking offset, number, totalResults with expect()")
+    public void getRecipeWithBodyChecksGivenPositiveTest() {
+        given()
                 .queryParam("apiKey", apiKey)
-                //.queryParam("includeNutrition","false")
+                .queryParam("cuisine", "Greek")
+                .expect()
+                .body("offset", is(0))
+                .body("number", is(10))
+                .body("totalResults", is(24))
+                .when()
+                .get(url+"complexSearch")
+                .then()
+                .statusCode(200);
+    }
+
+
+
+    @Test
+    @Description("Checking cuisine, confidence")
+    public void postCuisinePositiveAssertTest() {
+        JsonPath response = given()
+                .queryParam("apiKey", apiKey)
                 .when()
                 .post(url + "cuisine")
-                .then()
-                .extract()
-                .body().asPrettyString();
-        System.out.println(response);
-
-//                .body("offset",is(0))
-//                .body("number",is(10))
-//                .body("totalResults",equalTo(5222))
-        ;
-//        System.out.println(response.get("offset").toString());
-//        System.out.println(response.get("number").toString());
-//        System.out.println(response.get("totalResults").toString());
-        //assertEquals(response.get("offset").);
-//        assertEquals(response.get("offset"),"0");
-
-
+                .body()
+                .jsonPath();
+        System.out.println(response.prettyPrint());
+        assertThat(response.get("cuisine"), equalTo("Mediterranean"));
+        assertThat(response.get("confidence"), equalTo((float)(0)));
     }
 
 
